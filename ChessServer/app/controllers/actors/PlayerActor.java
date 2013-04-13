@@ -41,6 +41,11 @@ public class PlayerActor extends UntypedActor {
             webSocketOut.write(connectedNode);
             unansweredPings = 0;
         }
+        if (o instanceof Connected) {
+            ObjectNode connectedNode = Json.newObject();
+            connectedNode.put("Command", "Connected");
+            webSocketOut.write(connectedNode);
+        }
     }
 
     void disconnectPlayer() {
@@ -86,4 +91,6 @@ public class PlayerActor extends UntypedActor {
     public static class GetMatches {
 
     }
+
+    public static class Connected {}
 }

@@ -57,7 +57,7 @@ public class PlayersManagerActor extends UntypedActor {
 
                 players.put(userId, playerActor);
 
-                playerActor.tell("Connected");
+                playerActor.tell(new PlayerActor.Connected());
             }
         }
     }
