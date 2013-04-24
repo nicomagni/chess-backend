@@ -43,6 +43,8 @@ public class PlayersManagerActor extends UntypedActor {
         if (o instanceof PlayerConnected) {
 
             final String userId = ((PlayerConnected) o).getUserId();
+            final String username = ((PlayerConnected) o).getUsername();
+            final int color = ((PlayerConnected) o).getColor();
 
             if (players.containsKey(userId)) {
                 players.get(userId).tell(new PlayerActor.ReplaceWebSocket(((PlayerConnected) o).getWebSocketOut()));
@@ -51,7 +53,7 @@ public class PlayersManagerActor extends UntypedActor {
                         new Props(
                                 new UntypedActorFactory() {
                                     public UntypedActor create() {
-                                        return new PlayerActor(userId, ((PlayerConnected) o).getWebSocketOut());
+                                        return new PlayerActor(userId,username,color, ((PlayerConnected) o).getWebSocketOut());
                                     }
                                 }), userId.toString());
 
@@ -64,13 +66,25 @@ public class PlayersManagerActor extends UntypedActor {
 
     public static class PlayerConnected {
         private String userId;
+        private String username;
+        private int color;
         private WebSocket.Out<JsonNode> webSocketOut;
 
-        public PlayerConnected(String userId, WebSocket.Out<JsonNode> webSocketOut) {
+        public PlayerConnected(String userId, String username, int color, WebSocket.Out<JsonNode> webSocketOut) {
             this.userId = userId;
             this.webSocketOut = webSocketOut;
+            this.username = username;
+            this.color = color;
         }
 
+        public String getUsername(){
+        	return username;
+        }
+        
+        public int getColor(){
+        	return color;
+        }
+        
         public String getUserId() {
             return userId;
         }

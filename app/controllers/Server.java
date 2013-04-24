@@ -2,6 +2,8 @@ package controllers;
 
 import akka.actor.ActorRef;
 import controllers.actors.*;
+import controllers.actors.PlayersManagerActor.PlayerConnected;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 import play.libs.Akka;
@@ -41,7 +43,8 @@ public class Server extends Controller {
 
                         if (command.equals("Connect")) {
                             System.out.println("connect");
-                            PlayersManagerActor.playersManager.tell(new PlayersManagerActor.PlayerConnected(event.get("Id").asText(), out));
+                            PlayerConnected pc = new PlayersManagerActor.PlayerConnected(event.get("Id").asText(), event.get("username").asText() ,event.get("color").asInt(), out);
+                            PlayersManagerActor.playersManager.tell(pc);
                         } else if (command.equals("FindMatch")) {
                             ActorRef playerActor = PlayersManagerActor.getPlayerActorRef(event.get("Id").asText());
                             MatchesManagerActor.matchesManager.tell(new MatchesManagerActor.FindMatch(playerActor, event.get("Id").asText()));

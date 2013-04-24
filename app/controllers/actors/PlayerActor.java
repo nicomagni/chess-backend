@@ -18,13 +18,17 @@ import play.mvc.WebSocket;
 public class PlayerActor extends UntypedActor {
 
     String userId;
+    String playerName;
+    int color;
     WebSocket.Out<JsonNode> webSocketOut;
     int unansweredPings;
 
 
-    public PlayerActor(String userId, WebSocket.Out<JsonNode> webSocketOut) {
+    public PlayerActor(String userId, String playerName, int color, WebSocket.Out<JsonNode> webSocketOut) {
         this.userId = userId;
         this.webSocketOut = webSocketOut;
+        this.playerName = playerName;
+        this.color = color;
     }
 
 
