@@ -2,8 +2,6 @@ package controllers;
 
 import akka.actor.ActorRef;
 import controllers.actors.*;
-import controllers.actors.PlayersManagerActor.PlayerConnected;
-
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 import play.libs.Akka;
@@ -26,7 +24,7 @@ public class Server extends Controller {
 
     public static WebSocket<JsonNode> connectWS() {
 
-        System.out.println("connectWS");
+        System.out.println("New client connected.");
 
 //        final Long userId = Long.parseLong(session("userId"));
 
@@ -42,16 +40,20 @@ public class Server extends Controller {
                         String command = event.get("Command").asText();
 
                         if (command.equals("Connect")) {
-                            System.out.println("connect");
-                            PlayerConnected pc = new PlayersManagerActor.PlayerConnected(event.get("Id").asText(), event.get("username").asText() ,event.get("color").asInt(), out);
-                            PlayersManagerActor.playersManager.tell(pc);
+                            System.out.println("Connect");
+                            PlayersManagerActor.playersManager.tell(new PlayersManagerActor.PlayerConnected(event.get("Id").asText(), out));
                         } else if (command.equals("FindMatch")) {
+                        	System.out.println("FindMatch");
                             ActorRef playerActor = PlayersManagerActor.getPlayerActorRef(event.get("Id").asText());
+                            System.out.println("Player id = "+event.get("Id").asText());
                             MatchesManagerActor.matchesManager.tell(new MatchesManagerActor.FindMatch(playerActor, event.get("Id").asText()));
                         } else if (command.equals("GameMessage")) {
                             ActorRef matchActor = Akka.system().actorFor(MatchesManagerActor.matchesManager.path().child(String.valueOf(event.get("MatchId").asLong())));
+                            //matchActor.tell(new MatchActor.GameMessage(event.get("Id").asText(), event));
                             matchActor.tell(new MatchActor.GameMessage(event.get("Id").asText(), event));
+
                         }
+
                     }
                 }
 

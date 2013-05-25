@@ -25,6 +25,8 @@ public class Game {
 
     public Piece[] board;
 
+    public int 	turn;
+    
     public boolean whitesMove;
 
     public Game() {
@@ -71,7 +73,7 @@ public class Game {
         board[6] = knight2B;
         board[0] = tower1B;
         board[7] = tower2B;
-        for (int i = 7; i < 15; ++i) {
+        for (int i = 8; i < 16; ++i) {
             Piece pawn = new Piece(Piece.PAWN, false);
             board[i] = pawn;
         }
@@ -100,6 +102,20 @@ public class Game {
         board[to] = piece;
         whitesMove = !whitesMove;
     }
+    
+    public void fromJson(JsonNode game){
+        int i = 0;
+        JsonNode node = game.get("array");
+        turn = game.get("turn").asInt();
+        System.out.println(turn);
+        for( JsonNode a : node){
+            if(!a.isNull())
+                board[i] = new Piece(a.get("type").asInt(), a.get("white").asBoolean());
+            else
+                board[i] = null;
+            i++;
+        }
+    }
 
     public JsonNode json() {
         ArrayNode boardNode = JsonNodeFactory.instance.arrayNode();
@@ -110,6 +126,7 @@ public class Game {
                 boardNode.add(p.json());
             }
         }
+
         return boardNode;
     }
 }

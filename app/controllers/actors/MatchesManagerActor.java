@@ -32,9 +32,12 @@ import static akka.pattern.Patterns.pipe;
 public class MatchesManagerActor extends UntypedActor {
 
     public static ActorRef matchesManager = Akka.system().actorOf(new Props(MatchesManagerActor.class), "matchesManager");
+    public HashMap<Long, ActorRef> matches = new HashMap<Long, ActorRef>();
 
     ActorRef player1;
     ActorRef player2;
+    String player1uid;
+    String player2uid;
     Long lastId;
 
     @Override
@@ -45,26 +48,37 @@ public class MatchesManagerActor extends UntypedActor {
 
     @Override
     public void onReceive(final Object message) throws Exception {
+        
         if (message instanceof FindMatch) {
+            
             if (player1 == null) {
                 player1 = ((FindMatch) message).getPlayer();
+                player1uid = ((FindMatch) message).getUserId();
             } else if (player2 == null) {
                 player2 = ((FindMatch) message).getPlayer();
+                player2uid = ((FindMatch) message).getUserId();
 
                 final Long matchId = lastId++;
-
                 ActorRef match = getContext().actorOf(new Props(new UntypedActorFactory() {
                     public UntypedActor create() {
-                        return new MatchActor(matchId, player1, player2);
+                        return new MatchActor(matchId, player1, player1uid, player2, player2uid);
                     }
                 }), matchId.toString());
 
                 match.tell(new MatchActor.StartMatch());
+                matches.put(matchId, match);
 
                 player1 = null;
                 player2 = null;
             }
         }
+        if (message instanceof Move) {
+            
+        }
+    }
+    
+    public static class Move{
+        
     }
 
     public static class FindMatch {

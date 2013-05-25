@@ -18,17 +18,14 @@ import play.mvc.WebSocket;
 public class PlayerActor extends UntypedActor {
 
     String userId;
-    String playerName;
-    int color;
     WebSocket.Out<JsonNode> webSocketOut;
     int unansweredPings;
 
 
-    public PlayerActor(String userId, String playerName, int color, WebSocket.Out<JsonNode> webSocketOut) {
+    public PlayerActor(String userId, WebSocket.Out<JsonNode> webSocketOut) {
         this.userId = userId;
-        this.webSocketOut = webSocketOut;
-        this.playerName = playerName;
-        this.color = color;
+        System.out.println("creating user "+userId);
+        this.webSocketOut = webSocketOut;        
     }
 
 
@@ -39,6 +36,7 @@ public class PlayerActor extends UntypedActor {
             writeToSocket(((WriteToSocket) o).getMessage());
         }
         if (o instanceof ReplaceWebSocket) {
+            System.out.println("replacing socket "+userId);
             webSocketOut = ((ReplaceWebSocket) o).getWebSocketOut();
             ObjectNode connectedNode = Json.newObject();
             connectedNode.put("Command", "Connected");
@@ -46,6 +44,7 @@ public class PlayerActor extends UntypedActor {
             unansweredPings = 0;
         }
         if (o instanceof Connected) {
+            System.out.println("Player with id "+userId+" connected");
             ObjectNode connectedNode = Json.newObject();
             connectedNode.put("Command", "Connected");
             webSocketOut.write(connectedNode);

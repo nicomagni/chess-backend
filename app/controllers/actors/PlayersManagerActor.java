@@ -43,48 +43,39 @@ public class PlayersManagerActor extends UntypedActor {
         if (o instanceof PlayerConnected) {
 
             final String userId = ((PlayerConnected) o).getUserId();
-            final String username = ((PlayerConnected) o).getUsername();
-            final int color = ((PlayerConnected) o).getColor();
+            
+            System.out.println("userId = "+userId);
 
             if (players.containsKey(userId)) {
                 players.get(userId).tell(new PlayerActor.ReplaceWebSocket(((PlayerConnected) o).getWebSocketOut()));
             } else {
+//                final String nuserId = "1";
                 ActorRef playerActor = getContext().actorOf(
                         new Props(
                                 new UntypedActorFactory() {
                                     public UntypedActor create() {
-                                        return new PlayerActor(userId,username,color, ((PlayerConnected) o).getWebSocketOut());
+                                        return new PlayerActor(userId, ((PlayerConnected) o).getWebSocketOut());
                                     }
                                 }), userId.toString());
 
                 players.put(userId, playerActor);
 
-                playerActor.tell(new PlayerActor.Connected());
+                ActorRef pa = getPlayerActorRef(userId);
+                
+                pa.tell(new PlayerActor.Connected());
             }
         }
     }
 
     public static class PlayerConnected {
         private String userId;
-        private String username;
-        private int color;
         private WebSocket.Out<JsonNode> webSocketOut;
 
-        public PlayerConnected(String userId, String username, int color, WebSocket.Out<JsonNode> webSocketOut) {
+        public PlayerConnected(String userId, WebSocket.Out<JsonNode> webSocketOut) {
             this.userId = userId;
             this.webSocketOut = webSocketOut;
-            this.username = username;
-            this.color = color;
         }
 
-        public String getUsername(){
-        	return username;
-        }
-        
-        public int getColor(){
-        	return color;
-        }
-        
         public String getUserId() {
             return userId;
         }
